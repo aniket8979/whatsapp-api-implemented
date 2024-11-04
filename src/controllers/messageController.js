@@ -91,32 +91,6 @@ const downloadMedia = async (req, res) => {
   }
 }
 
-/**
- * Forwards a message to a destination chat.
- * @async
- * @function forward
- * @param {Object} req - The request object received by the server.
- * @param {Object} req.body - The body of the request object.
- * @param {string} req.body.messageId - The ID of the message to forward.
- * @param {string} req.body.chatId - The ID of the chat that contains the message to forward.
- * @param {string} req.body.destinationChatId - The ID of the chat to forward the message to.
- * @param {string} req.params.sessionId - The ID of the session to use the Telegram API with.
- * @param {Object} res - The response object to be sent back to the client.
- * @returns {Object} - The response object with a JSON body containing the result of the forward operation.
- * @throws Will throw an error if the message is not found or if there is an error during the forward operation.
- */
-const forward = async (req, res) => {
-  try {
-    const { messageId, chatId, destinationChatId } = req.body
-    const client = sessions.get(req.params.sessionId)
-    const message = await _getMessageById(client, messageId, chatId)
-    if (!message) { throw new Error('Message not Found') }
-    const result = await message.forward(destinationChatId)
-    res.json({ success: true, result })
-  } catch (error) {
-    sendErrorResponse(res, 500, error.message)
-  }
-}
 
 /**
  * Gets information about a message.
@@ -144,140 +118,8 @@ const getInfo = async (req, res) => {
   }
 }
 
-/**
- * Retrieves a list of contacts mentioned in a specific message
- *
- * @async
- * @function
- * @param {Object} req - The HTTP request object
- * @param {Object} req.body - The request body
- * @param {string} req.body.messageId - The ID of the message to retrieve mentions from
- * @param {string} req.body.chatId - The ID of the chat where the message was sent
- * @param {string} req.params.sessionId - The ID of the session for the client making the request
- * @param {Object} res - The HTTP response object
- * @returns {Promise<void>} - The JSON response with the list of contacts
- * @throws {Error} - If there's an error retrieving the message or mentions
- */
-const getMentions = async (req, res) => {
-  try {
-    const { messageId, chatId } = req.body
-    const client = sessions.get(req.params.sessionId)
-    const message = await _getMessageById(client, messageId, chatId)
-    if (!message) { throw new Error('Message not Found') }
-    const contacts = await message.getMentions()
-    res.json({ success: true, contacts })
-  } catch (error) {
-    sendErrorResponse(res, 500, error.message)
-  }
-}
 
-/**
- * Retrieves the order information contained in a specific message
- *
- * @async
- * @function
- * @param {Object} req - The HTTP request object
- * @param {Object} req.body - The request body
- * @param {string} req.body.messageId - The ID of the message to retrieve the order from
- * @param {string} req.body.chatId - The ID of the chat where the message was sent
- * @param {string} req.params.sessionId - The ID of the session for the client making the request
- * @param {Object} res - The HTTP response object
- * @returns {Promise<void>} - The JSON response with the order information
- * @throws {Error} - If there's an error retrieving the message or order information
- */
-const getOrder = async (req, res) => {
-  try {
-    const { messageId, chatId } = req.body
-    const client = sessions.get(req.params.sessionId)
-    const message = await _getMessageById(client, messageId, chatId)
-    if (!message) { throw new Error('Message not Found') }
-    const order = await message.getOrder()
-    res.json({ success: true, order })
-  } catch (error) {
-    sendErrorResponse(res, 500, error.message)
-  }
-}
 
-/**
- * Retrieves the payment information from a specific message identified by its ID.
- *
- * @async
- * @function getPayment
- * @param {Object} req - The HTTP request object.
- * @param {Object} res - The HTTP response object.
- * @param {string} req.params.sessionId - The session ID associated with the client making the request.
- * @param {Object} req.body - The message ID and chat ID associated with the message to retrieve payment information from.
- * @param {string} req.body.messageId - The ID of the message to retrieve payment information from.
- * @param {string} req.body.chatId - The ID of the chat the message is associated with.
- * @returns {Object} An object containing a success status and the payment information for the specified message.
- * @throws {Object} If the specified message is not found or if an error occurs during the retrieval process.
- */
-const getPayment = async (req, res) => {
-  try {
-    const { messageId, chatId } = req.body
-    const client = sessions.get(req.params.sessionId)
-    const message = await _getMessageById(client, messageId, chatId)
-    if (!message) { throw new Error('Message not Found') }
-    const payment = await message.getPayment()
-    res.json({ success: true, payment })
-  } catch (error) {
-    sendErrorResponse(res, 500, error.message)
-  }
-}
-
-/**
- * Retrieves the quoted message information from a specific message identified by its ID.
- *
- * @async
- * @function getQuotedMessage
- * @param {Object} req - The HTTP request object.
- * @param {Object} res - The HTTP response object.
- * @param {string} req.params.sessionId - The session ID associated with the client making the request.
- * @param {Object} req.body - The message ID and chat ID associated with the message to retrieve quoted message information from.
- * @param {string} req.body.messageId - The ID of the message to retrieve quoted message information from.
- * @param {string} req.body.chatId - The ID of the chat the message is associated with.
- * @returns {Object} An object containing a success status and the quoted message information for the specified message.
- * @throws {Object} If the specified message is not found or if an error occurs during the retrieval process.
- */
-const getQuotedMessage = async (req, res) => {
-  try {
-    const { messageId, chatId } = req.body
-    const client = sessions.get(req.params.sessionId)
-    const message = await _getMessageById(client, messageId, chatId)
-    if (!message) { throw new Error('Message not Found') }
-    const quotedMessage = await message.getQuotedMessage()
-    res.json({ success: true, quotedMessage })
-  } catch (error) {
-    sendErrorResponse(res, 500, error.message)
-  }
-}
-
-/**
- * React to a specific message in a chat
- *
- * @async
- * @function react
- * @param {Object} req - The HTTP request object containing the request parameters and body.
- * @param {Object} res - The HTTP response object to send the result.
- * @param {string} req.params.sessionId - The ID of the session to use.
- * @param {string} req.body.messageId - The ID of the message to react to.
- * @param {string} req.body.chatId - The ID of the chat the message is in.
- * @param {string} req.body.reaction - The reaction to add to the message.
- * @returns {Object} The HTTP response containing the result of the operation.
- * @throws {Error} If there was an error during the operation.
- */
-const react = async (req, res) => {
-  try {
-    const { messageId, chatId, reaction } = req.body
-    const client = sessions.get(req.params.sessionId)
-    const message = await _getMessageById(client, messageId, chatId)
-    if (!message) { throw new Error('Message not Found') }
-    const result = await message.react(reaction)
-    res.json({ success: true, result })
-  } catch (error) {
-    sendErrorResponse(res, 500, error.message)
-  }
-}
 
 /**
  * Reply to a specific message in a chat
@@ -308,68 +150,12 @@ const reply = async (req, res) => {
   }
 }
 
-/**
- * @function star
- * @async
- * @description Stars a message by message ID and chat ID.
- * @param {Object} req - The request object.
- * @param {Object} res - The response object.
- * @param {string} req.params.sessionId - The session ID.
- * @param {string} req.body.messageId - The message ID.
- * @param {string} req.body.chatId - The chat ID.
- * @returns {Promise} A Promise that resolves with the result of the message.star() call.
- * @throws {Error} If message is not found, it throws an error with the message "Message not Found".
- */
-const star = async (req, res) => {
-  try {
-    const { messageId, chatId } = req.body
-    const client = sessions.get(req.params.sessionId)
-    const message = await _getMessageById(client, messageId, chatId)
-    if (!message) { throw new Error('Message not Found') }
-    const result = await message.star()
-    res.json({ success: true, result })
-  } catch (error) {
-    sendErrorResponse(res, 500, error.message)
-  }
-}
 
-/**
- * @function unstar
- * @async
- * @description Unstars a message by message ID and chat ID.
- * @param {Object} req - The request object.
- * @param {Object} res - The response object.
- * @param {string} req.params.sessionId - The session ID.
- * @param {string} req.body.messageId - The message ID.
- * @param {string} req.body.chatId - The chat ID.
- * @returns {Promise} A Promise that resolves with the result of the message.unstar() call.
- * @throws {Error} If message is not found, it throws an error with the message "Message not Found".
- */
-const unstar = async (req, res) => {
-  try {
-    const { messageId, chatId } = req.body
-    const client = sessions.get(req.params.sessionId)
-    const message = await _getMessageById(client, messageId, chatId)
-    if (!message) { throw new Error('Message not Found') }
-    const result = await message.unstar()
-    res.json({ success: true, result })
-  } catch (error) {
-    sendErrorResponse(res, 500, error.message)
-  }
-}
 
 module.exports = {
   getClassInfo,
   deleteMessage,
   downloadMedia,
-  forward,
   getInfo,
-  getMentions,
-  getOrder,
-  getPayment,
-  getQuotedMessage,
-  react,
   reply,
-  star,
-  unstar
 }

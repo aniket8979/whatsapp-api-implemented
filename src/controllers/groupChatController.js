@@ -49,51 +49,9 @@ const removeParticipants = async (req, res) => {
   }
 }
 
-/**
- * Promotes participants in a group chat to admin
- *
- * @async
- * @function
- * @param {Object} req - Express request object
- * @param {Object} res - Express response object
- * @returns {Promise<Object>} Returns a JSON object with success flag and updated participants list
- * @throws {Error} If chat is not a group
- */
-const promoteParticipants = async (req, res) => {
-  try {
-    const { chatId, contactIds } = req.body
-    const client = sessions.get(req.params.sessionId)
-    const chat = await client.getChatById(chatId)
-    if (!chat.isGroup) { throw new Error('The chat is not a group') }
-    await chat.promoteParticipants(contactIds)
-    res.json({ success: true, participants: chat.participants })
-  } catch (error) {
-    sendErrorResponse(res, 500, error.message)
-  }
-}
 
-/**
- * Demotes admin participants in a group chat
- *
- * @async
- * @function
- * @param {Object} req - Express request object
- * @param {Object} res - Express response object
- * @returns {Promise<Object>} Returns a JSON object with success flag and updated participants list
- * @throws {Error} If chat is not a group
- */
-const demoteParticipants = async (req, res) => {
-  try {
-    const { chatId, contactIds } = req.body
-    const client = sessions.get(req.params.sessionId)
-    const chat = await client.getChatById(chatId)
-    if (!chat.isGroup) { throw new Error('The chat is not a group') }
-    await chat.demoteParticipants(contactIds)
-    res.json({ success: true, participants: chat.participants })
-  } catch (error) {
-    sendErrorResponse(res, 500, error.message)
-  }
-}
+
+
 
 /**
  * Gets the invite code for a group chat
@@ -211,30 +169,7 @@ const getClassInfo = async (req, res) => {
   }
 }
 
-/**
- * Revokes the invite link for a group chat based on the provided chatId
- *
- * @async
- * @function revokeInvite
- * @param {object} req - The request object
- * @param {object} res - The response object
- * @param {string} req.body.chatId - The chatId of the group chat to revoke the invite for
- * @param {string} req.params.sessionId - The sessionId of the client making the request
- * @throws {Error} The chat is not a group.
- * @returns {Promise<void>} - A JSON response with success true and the new invite code for the group chat
- */
-const revokeInvite = async (req, res) => {
-  try {
-    const { chatId } = req.body
-    const client = sessions.get(req.params.sessionId)
-    const chat = await client.getChatById(chatId)
-    if (!chat.isGroup) { throw new Error('The chat is not a group') }
-    const newInviteCode = await chat.revokeInvite()
-    res.json({ success: true, newInviteCode })
-  } catch (error) {
-    sendErrorResponse(res, 500, error.message)
-  }
-}
+
 
 /**
  * Sets admins-only status of a group chat's info or messages.
@@ -340,12 +275,9 @@ const deletePicture = async (req, res) => {
 module.exports = {
   getClassInfo,
   addParticipants,
-  demoteParticipants,
   getInviteCode,
   leave,
-  promoteParticipants,
   removeParticipants,
-  revokeInvite,
   setDescription,
   setInfoAdminsOnly,
   setMessagesAdminsOnly,
