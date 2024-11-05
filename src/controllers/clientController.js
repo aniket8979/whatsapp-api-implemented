@@ -2,6 +2,56 @@ const { MessageMedia, Location, Buttons, List, Poll } = require('whatsapp-web.js
 const { sessions } = require('../sessions')
 const { sendErrorResponse } = require('../utils')
 
+
+/**
+ * Send bulk messages to multiple chat IDs
+ * 
+ * @async
+ * @function sendBulkMessages
+ * @param {Object} client - The WhatsApp client instance
+ * @param {Array} messages - Array of message objects to be sent
+ * @param {number} delay - Delay between messages in milliseconds (optional, default: 1000)
+ * @returns {Array} - Array of sent message objects
+ */
+async function sendBulkMessages(client, messages) { //delay = 1000
+  const sentMessages = [];
+
+  for (const message of messages) {
+    let { chatId, content, options } = message;
+    try {
+      const messageOut = await client.sendMessage(chatId, content, options);
+      sentMessages.push(messageOut);
+      console.log(`Message sent successfully to ${chatId}`);
+    } catch (error) {
+      console.error(`Failed to send message to ${chatId}:`, error.message);
+    }
+    // Add delay between messages to avoid rate limiting
+    // await new Promise(resolve => setTimeout(resolve, delay));
+  }
+  return sentMessages;
+}
+
+
+
+const sendAllMessage = async (req, res) => { 
+  const client = sessions.get(req.params.sessionId);
+  // const messagesToSend = [
+  //   { chatId: '1234567890@c.us', content: 'Hello, user 1!', options: {} },
+  //   { chatId: '0987654321@c.us', content: 'Hello, user 2!', options: {} },
+  //   { chatId: '1122334455@c.us', content: 'Hello, user 3!', options: {} }
+  // ];
+  const messagesToSend = req.body.messages;
+  try {
+    const sentMessages = await sendBulkMessages(client, messagesToSend);
+    console.log(`Successfully sent ${sentMessages.length} messages`);
+    res.json({ success: true, sentMessages });
+  } catch (error) {
+    console.error('Error sending bulk messages:', error);
+    sendErrorResponse(res, 500, 'Error sending bulk messages');
+  }
+}
+
+
 /**
  * Send a message to a chat using the WhatsApp API
  *
@@ -412,6 +462,7 @@ const getState = async (req, res) => {
 
 module.exports = {
   getClassInfo,
+  sendAllMessage,
   createGroup,
   getChatById,
   getChats,

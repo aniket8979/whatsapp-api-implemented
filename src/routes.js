@@ -12,6 +12,7 @@ const chatController = require('./controllers/chatController')
 const groupChatController = require('./controllers/groupChatController')
 const messageController = require('./controllers/messageController')
 const contactController = require('./controllers/contactController')
+// const authController = require('./auth/loginController')
 
 /**
  * ================
@@ -25,6 +26,20 @@ routes.get('/ping', healthController.ping)
 if (enableLocalCallbackExample) {
   routes.post('/localCallbackExample', [middleware.apikey, middleware.rateLimiter], healthController.localCallbackExample)
 }
+
+
+/**
+ * ================
+ * LOGIN & REGISTER
+ * ================
+ */
+
+
+
+
+
+
+
 
 /**
  * ================
@@ -55,7 +70,7 @@ const clientRouter = express.Router()
 clientRouter.use(middleware.apikey)
 sessionRouter.use(middleware.clientSwagger)
 routes.use('/client', clientRouter)
-
+clientRouter.get('/sendMessageAll/:sessionId', [middleware.sessionNameValidation, middleware.sessionValidation], clientController.sendAllMessage)
 clientRouter.get('/getClassInfo/:sessionId', [middleware.sessionNameValidation, middleware.sessionValidation], clientController.getClassInfo)
 clientRouter.post('/createGroup/:sessionId', [middleware.sessionNameValidation, middleware.sessionValidation], clientController.createGroup)
 clientRouter.post('/getChatById/:sessionId', [middleware.sessionNameValidation, middleware.sessionValidation], clientController.getChatById)
