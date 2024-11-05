@@ -12,7 +12,7 @@ const chatController = require('./controllers/chatController')
 const groupChatController = require('./controllers/groupChatController')
 const messageController = require('./controllers/messageController')
 const contactController = require('./controllers/contactController')
-// const authController = require('./auth/loginController')
+const authController = require('./auth/authController');
 
 /**
  * ================
@@ -34,10 +34,11 @@ if (enableLocalCallbackExample) {
  * ================
  */
 
+const authRouter = express.Router()
+routes.use('/auth', authRouter)
 
-
-
-
+authRouter.post('/login', authController.login)
+authRouter.post('/register', authController.register)
 
 
 

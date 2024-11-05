@@ -1,12 +1,10 @@
-import express from 'express';
-import bcrypt from 'bcrypt';
-import * as Response from '../auth/utils/response';
-import * as tokenService from '../auth/token/tokenService';
-import { User } from "../auth/Users";
+const bcrypt = require('bcrypt');
+const Response = require('./utils/response');
+const tokenService = require('./token/tokenService');
+const  User  = require('./Users/User');
 
-const router = express.Router();
 
-router.post('/register', async (req, res) => {
+const register = async (req, res) => {
     try {
         const { username, password } = req.body;
         const hashedPassword = await bcrypt.hash(password, 10);
@@ -29,10 +27,10 @@ router.post('/register', async (req, res) => {
     } catch (error) {
         res.status(500).json(Response.responseFailure("unable to register user"));
     }
-});
+}
 
 
-router.post('/login', async (req, res) => {
+const login = async (req, res) => {
     try {
         const { username, password } = req.body;
         const user = await User.findOne({ username });
@@ -48,6 +46,9 @@ router.post('/login', async (req, res) => {
     } catch (error) {
         res.status(500).json(Response.responseFailure("Internal server error"));
     }
-});
+}
 
-module.exports = router;
+module.exports = {
+    register,
+    login
+}
