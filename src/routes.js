@@ -13,6 +13,7 @@ const groupChatController = require('./controllers/groupChatController')
 const messageController = require('./controllers/messageController')
 const contactController = require('./controllers/contactController')
 const authController = require('./auth/authController');
+const tokenService = require('./auth/token/tokenService');
 
 /**
  * ================
@@ -39,7 +40,8 @@ routes.use('/auth', authRouter)
 
 authRouter.post('/login', authController.login)
 authRouter.post('/register', authController.register)
-
+authRouter.post('/newAccount/:phNumber', tokenService.verifyToken, authController.addNewAccount)
+authRouter.get('/status/:phNumber', tokenService.verifyToken, authController.activeAccount)
 
 
 /**
@@ -48,13 +50,13 @@ authRouter.post('/register', authController.register)
  * ================
  */
 const sessionRouter = express.Router()
-sessionRouter.use(middleware.apikey)
+// sessionRouter.use(middleware.apikey)
 sessionRouter.use(middleware.sessionSwagger)
 routes.use('/session', sessionRouter)
 
-sessionRouter.get('/start/:sessionId', middleware.sessionNameValidation, sessionController.startSession)
-sessionRouter.get('/status/:sessionId', middleware.sessionNameValidation, sessionController.statusSession)
-sessionRouter.get('/qr/:sessionId', middleware.sessionNameValidation, sessionController.sessionQrCode)
+sessionRouter.get('/start/:sessionId', middleware.sessionNameValidation, tokenService.verifyToken, sessionController.startSession)
+sessionRouter.get('/status/:sessionId', middleware.sessionNameValidation, tokenService.verifyToken, sessionController.statusSession)
+sessionRouter.get('/qr/:sessionId', middleware.sessionNameValidation, tokenService.verifyToken, sessionController.sessionQrCode)
 sessionRouter.get('/qr/:sessionId/image', middleware.sessionNameValidation, sessionController.sessionQrCodeImage)
 sessionRouter.get('/restart/:sessionId', middleware.sessionNameValidation, sessionController.restartSession)
 sessionRouter.get('/terminate/:sessionId', middleware.sessionNameValidation, sessionController.terminateSession)
@@ -68,7 +70,7 @@ sessionRouter.get('/terminateAll', sessionController.terminateAllSessions)
  */
 
 const clientRouter = express.Router()
-clientRouter.use(middleware.apikey)
+// clientRouter.use(middleware.apikey)
 sessionRouter.use(middleware.clientSwagger)
 routes.use('/client', clientRouter)
 clientRouter.get('/sendMessageAll/:sessionId', [middleware.sessionNameValidation, middleware.sessionValidation], clientController.sendAllMessage)
@@ -90,7 +92,7 @@ clientRouter.post('/setStatus/:sessionId', [middleware.sessionNameValidation, mi
  * ================
  */
 const chatRouter = express.Router()
-chatRouter.use(middleware.apikey)
+// chatRouter.use(middleware.apikey)
 sessionRouter.use(middleware.chatSwagger)
 routes.use('/chat', chatRouter)
 
@@ -106,7 +108,7 @@ chatRouter.post('/getContact/:sessionId', [middleware.sessionNameValidation, mid
  * ================
  */
 const groupChatRouter = express.Router()
-groupChatRouter.use(middleware.apikey)
+// groupChatRouter.use(middleware.apikey)
 sessionRouter.use(middleware.groupChatSwagger)
 routes.use('/groupChat', groupChatRouter)
 
@@ -128,7 +130,7 @@ groupChatRouter.post('/deletePicture/:sessionId', [middleware.sessionNameValidat
  * ================
  */
 const messageRouter = express.Router()
-messageRouter.use(middleware.apikey)
+// messageRouter.use(middleware.apikey)
 sessionRouter.use(middleware.messageSwagger)
 routes.use('/message', messageRouter)
 
@@ -144,7 +146,7 @@ messageRouter.post('/reply/:sessionId', [middleware.sessionNameValidation, middl
  * ================
  */
 const contactRouter = express.Router()
-contactRouter.use(middleware.apikey)
+// contactRouter.use(middleware.apikey)
 sessionRouter.use(middleware.contactSwagger)
 routes.use('/contact', contactRouter)
 
