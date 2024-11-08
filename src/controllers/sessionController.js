@@ -1,6 +1,7 @@
 const qr = require('qr-image')
 const { setupSession, deleteSession, reloadSession, validateSession, flushSessions, sessions } = require('../sessions')
 const { sendErrorResponse, waitForNestedObject } = require('../utils')
+const activateSession = require('../auth/authController')
 
 /**
  * Starts a session for the given session ID.
@@ -43,7 +44,14 @@ const startSession = async (req, res) => {
     */
     // wait until the client is created
     waitForNestedObject(setupSessionReturn.client, 'pupPage')
-      .then(res.json({ success: true, message: setupSessionReturn.message }))
+      .then(() => {
+        const updatedToken = activateSession.activateSession(req, res);
+        if (updatedToken !== false) { 
+          return res.json({ success: true, message: setupSessionReturn.message, updatedToken: updatedToken })
+        } else {
+          return res.json({ success: false, message: 'invalid request' })
+        }
+      })
       .catch((err) => { sendErrorResponse(res, 500, err.message) })
   } catch (error) {
   /* #swagger.responses[500] = {

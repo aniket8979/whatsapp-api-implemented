@@ -1,9 +1,15 @@
 const app = require('./src/app')
 const { baseWebhookURL } = require('./src/config')
 require('dotenv').config()
+const mongoose = require('mongoose')
 
 // Start the server
 const port = process.env.PORT || 3000
+
+mongoose.connect(process.env.MONGO_URI || 'mongodb://localhost:27017/wwebjs', {})
+  .then(() => console.log('MongoDB connected'))
+  .catch(err => console.log(err));
+
 
 // Check if BASE_WEBHOOK_URL environment variable is available
 if (!baseWebhookURL) {
