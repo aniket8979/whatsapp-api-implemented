@@ -5,6 +5,11 @@ const app = require('express')()
 const bodyParser = require('body-parser')
 const { maxAttachmentSize } = require('./config')
 
+const cors = require('cors');
+
+app.use(cors());
+
+
 // Initialize Express app
 app.disable('x-powered-by')
 app.use(bodyParser.json({ limit: maxAttachmentSize + 1000000 }))

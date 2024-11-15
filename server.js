@@ -1,10 +1,21 @@
 const app = require('./src/app')
+
 const { baseWebhookURL } = require('./src/config')
 require('dotenv').config()
 const mongoose = require('mongoose')
 
 // Start the server
 const port = process.env.PORT || 3000
+
+
+// const corsOptions = {
+//   origin: '*',
+//   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+//   allowedHeaders: '*',
+//   credentials: true
+// };
+
+
 
 mongoose.connect(process.env.MONGO_URI || 'mongodb://localhost:27017/wwebjs', {})
   .then(() => console.log('MongoDB connected'))
